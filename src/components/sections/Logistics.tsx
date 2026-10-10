@@ -209,7 +209,7 @@ export default function Logistics() {
             hidden: {},
             visible: { transition: { staggerChildren: 0.1 } },
           }}
-          className="glass rounded-2xl p-6 sm:p-8"
+          className="glass-strong rounded-2xl p-6 sm:p-8"
         >
           <p className="max-w-2xl font-display text-xl font-semibold leading-snug text-paper sm:text-2xl">
             El batch no es un detalle de producción: es la razón por la que

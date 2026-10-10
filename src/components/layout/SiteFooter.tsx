@@ -120,9 +120,32 @@ export function SiteFooter() {
           Miri Ads
         </p>
 
-        <div className="flex flex-col gap-2 border-t border-white/8 pt-6 text-xs text-gray-500 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 border-t border-white/8 pt-6 text-xs text-gray-500 sm:flex-row sm:items-center sm:justify-between">
           <p>© 2026 Miri Ads · Todos los derechos reservados.</p>
-          <p>Hecho en LatAm · Lima, Perú</p>
+          <div className="flex flex-col gap-1.5 sm:items-end">
+            <p>Nacida en Bogotá, Colombia</p>
+            <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
+              <span>Coordinado por</span>
+              <a
+                href="https://soverath.presentto.online"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-aqua transition-colors duration-300 hover:text-paper focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-aqua"
+              >
+                Soverath Holding
+              </a>
+              <span aria-hidden="true">·</span>
+              <span>Desarrollado por</span>
+              <a
+                href="https://aperion.presentto.online"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-aqua transition-colors duration-300 hover:text-paper focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-aqua"
+              >
+                Aeperion Systems
+              </a>
+            </p>
+          </div>
         </div>
       </div>
     </footer>

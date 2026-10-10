@@ -212,7 +212,7 @@ export default function Proof() {
           </Reveal>
 
           <div className="flex flex-col gap-6">
-            <ul className="flex flex-col gap-4 rounded-2xl bg-ink/50 p-4 backdrop-blur-[3px]">
+            <ul className="glass flex flex-col gap-4 rounded-2xl p-5">
               {PROOF_POINTS.map((point, index) => (
                 <li key={point.title}>
                   <Reveal delay={index * 0.09}>

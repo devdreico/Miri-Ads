@@ -2,15 +2,44 @@
 
 Plataforma phygital de publicidad: packs digitales + red física uberizada con evidencia geolocalizada (GPS + foto EXIF), panel de Administrador de Ciudad y app Miri Crew.
 
+**Nacida en Bogotá, Colombia.** Coordinada por [Soverath Holding](https://soverath.presentto.online) · Desarrollada por [Aeperion Systems](https://aperion.presentto.online).
+
+Producción: [miriads.presentto.online](https://miriads.presentto.online)
+
 ## Stack
 
 - Next.js 16 (App Router, Cache Components, Partial Prerendering)
 - React 19 · TypeScript · Tailwind v4
+- Montserrat (títulos bold + cuerpo)
 - Prisma 6 + PostgreSQL 16
 - three / R3F / drei / postprocessing (globo 3D)
 - GSAP ScrollTrigger + Lenis (scroll cinematográfico)
 - Leaflet (mapas admin)
 - MercadoPago (modo demo sin token; sandbox con `MP_ACCESS_TOKEN`)
+
+## Tema claro / oscuro
+
+- Toggle en el header (desktop y menú móvil)
+- Persistencia en `localStorage` (`miri-theme`) + `prefers-color-scheme`
+- La escena 3D del globo se mantiene oscura en ambos temas (decisión de diseño)
+- Tokens re-definidos bajo `[data-theme="light"]` en `globals.css`; las utilidades de Tailwind referencian `var(--color-*)`
+
+## SEO
+
+- `metadataBase` = `NEXT_PUBLIC_SITE_URL` (producción: `https://miriads.presentto.online`)
+- `sitemap.xml` + `robots.txt` (admin/crew/api desindexados)
+- Open Graph + Twitter Card con imagen generada (`/opengraph-image`)
+- JSON-LD `Organization` (Bogotá, Soverath como parent, Aeperion en sameAs)
+- Favicon / apple-icon / icon derivados del logo real
+- **En Vercel**: setear `NEXT_PUBLIC_SITE_URL=https://miriads.presentto.online` en Environment Variables
+
+## Marca
+
+- Origen: **Bogotá, Colombia**
+- Coordinación: Soverath Holding ([soverath.presentto.online](https://soverath.presentto.online))
+- Desarrollo: Aeperion Systems ([aperion.presentto.online](https://aperion.presentto.online))
+- Herramienta IA: [Miria](https://miria.presentto.online) (enlace en el header)
+- Tipografía: Montserrat (bold en títulos, regular/medium en cuerpo)
 
 ## Requisitos
 

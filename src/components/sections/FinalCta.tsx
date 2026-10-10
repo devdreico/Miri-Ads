@@ -168,7 +168,7 @@ export default function FinalCta() {
         </Reveal>
 
         <Reveal delay={0.3}>
-          <ul className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-6">
+          <ul className="glass inline-flex flex-col items-center gap-3 rounded-full px-5 py-3 sm:flex-row sm:justify-center sm:gap-6">
             {GUARANTEES.map((item) => (
               <li
                 key={item}

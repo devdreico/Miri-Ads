@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion, useReducedMotion } from "motion/react";
 import { Badge, Counter, MagneticButton, Marquee, SplitText } from "@/components/ui";
 import { DURATION, EASE_OUT_EXPO } from "@/lib/motion";
@@ -59,7 +60,16 @@ export default function Hero() {
             transition={{ duration: DURATION.base, ease: EASE_OUT_EXPO }}
           >
             <Badge tone="aqua" dot>
-              Agencia phygital · LatAm
+              <span className="inline-flex items-center gap-2">
+                <Image
+                  src="/logo/miri-ads-logo.png"
+                  alt=""
+                  width={18}
+                  height={17}
+                  className="h-[18px] w-auto"
+                />
+                Agencia phygital · Bogotá, Colombia
+              </span>
             </Badge>
           </motion.div>
 
@@ -127,7 +137,7 @@ export default function Hero() {
                 delay: 0.75 + index * 0.09,
                 ease: EASE_OUT_EXPO,
               }}
-              className="glass rounded-2xl px-4 py-4 sm:px-5 sm:py-5"
+              className="glass-strong rounded-2xl px-4 py-4 sm:px-5 sm:py-5"
             >
               <p className="font-display text-2xl font-semibold leading-none text-paper sm:text-3xl">
                 <Counter

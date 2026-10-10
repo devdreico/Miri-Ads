@@ -8,6 +8,7 @@ import { MagneticButton } from "@/components/ui";
 import { cx } from "@/components/ui/cx";
 import { EASE_OUT_EXPO } from "@/lib/motion";
 import { CloseIcon, MenuIcon } from "@/components/sections/icons";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 interface NavItem {
   label: string;
@@ -22,7 +23,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Crew", href: "#crew" },
 ];
 
-const NAV_OPEN_VG = "https://openvg.presentto.online";
+const NAV_MIRIA = "https://miria.presentto.online";
 
 const NAV_CONTACT = "mailto:hola@miriads.com";
 
@@ -103,7 +104,7 @@ export function SiteNav() {
           >
             <Image
               src="/logo/miri-ads-logo.png"
-              alt=""
+              alt="Miri Ads"
               width={40}
               height={37}
               priority
@@ -128,16 +129,17 @@ export function SiteNav() {
               </Link>
             ))}
             <a
-              href={NAV_OPEN_VG}
+              href={NAV_MIRIA}
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-lg px-3 py-2 text-sm text-gray-300 transition-colors duration-300 hover:text-aqua focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-aqua"
             >
-              OpenVG
+              Miria
             </a>
           </nav>
 
-          <div className="hidden items-center gap-4 lg:flex">
+          <div className="hidden items-center gap-3 lg:flex">
+            <ThemeToggle />
             <MagneticButton href="/admin" variant="ghost" size="sm">
               Panel
             </MagneticButton>
@@ -190,13 +192,13 @@ export function SiteNav() {
                 </Link>
               ))}
               <a
-                href={NAV_OPEN_VG}
+                href={NAV_MIRIA}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={closeMenu}
                 className="flex items-center justify-between border-b border-white/8 py-4 font-display text-2xl font-medium text-paper transition-colors duration-300 hover:text-aqua focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-aqua"
               >
-                OpenVG
+                Miria
                 <span aria-hidden="true" className="text-sm text-aqua">
                   ↗
                 </span>
@@ -204,6 +206,10 @@ export function SiteNav() {
             </nav>
 
             <div className="flex flex-col gap-3">
+              <div className="flex items-center justify-between border-b border-white/8 py-3">
+                <span className="text-sm text-gray-400">Tema</span>
+                <ThemeToggle />
+              </div>
               <MagneticButton
                 href="#packs"
                 size="lg"
