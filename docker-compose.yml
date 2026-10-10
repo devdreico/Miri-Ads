@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: miri-ads-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: miri
+      POSTGRES_PASSWORD: miri
+      POSTGRES_DB: miri_ads
+    ports:
+      - "5433:5432"
+    volumes:
+      - miri_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U miri -d miri_ads"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  miri_pgdata:

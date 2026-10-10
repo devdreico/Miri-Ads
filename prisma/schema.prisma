@@ -1,0 +1,474 @@
+// Miri Ads — contratos de datos (Postgres)
+// Regla: todo lo que necesiten las pantallas (landing, checkout, panel ciudad, crew)
+// debe existir aquí. Los catálogos de planes viven en src/lib/plans.ts (no aquí).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────── Enums ───────────────────────────────
+
+enum Role {
+  CLIENT
+  CITY_ADMIN
+  MIRI_CENTRAL
+  CREW
+}
+
+enum PlanTier {
+  ESSENTIAL
+  PRO
+  GROWTH
+}
+
+enum Cadence {
+  MONTHLY
+  QUARTERLY
+  ANNUAL
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  REJECTED
+  EXPIRED
+  CANCELLED
+}
+
+enum PaymentProvider {
+  MERCADOPAGO
+  DEMO
+}
+
+enum PaymentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  REFUNDED
+  CANCELLED
+}
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+}
+
+enum DeliverableType {
+  CALENDAR
+  STATIC_IMAGE
+  COPY
+  MOTION_VIDEO
+  VIDEO_AD
+  PAID_MEDIA_REPORT
+}
+
+enum DeliverableStatus {
+  PENDING
+  IN_PROGRESS
+  DELIVERED
+  APPROVED
+  REJECTED
+}
+
+enum PointStatus {
+  PROPOSED
+  ACTIVE
+  PAUSED
+}
+
+enum ZoneStatus {
+  PROPOSED
+  ACTIVE
+  PAUSED
+}
+
+enum CyclePhase {
+  SALES
+  PRINTING
+  DISTRIBUTION
+  DEPLOYMENT
+  CLOSING
+}
+
+enum RouteStatus {
+  PLANNED
+  DISTRIBUTED
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}
+
+enum StopKind {
+  FLYER
+  PASTE
+  STICKER
+  HANDBILL
+}
+
+enum StopStatus {
+  PENDING
+  DONE
+  MISSED
+  REJECTED
+}
+
+enum EvidenceKind {
+  PHOTO
+  VIDEO
+  CHECKLIST
+}
+
+enum EvidenceStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum CrewStatus {
+  AVAILABLE
+  ACTIVE
+  INACTIVE
+}
+
+// ─────────────────────────────── Usuarios ───────────────────────────────
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  phone        String?
+  passwordHash String?
+  role         Role     @default(CLIENT)
+  avatarUrl    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  crew         CrewProfile?
+  evidences    Evidence[]      @relation("EvidenceUploader")
+  reviews      Evidence[]      @relation("EvidenceReviewer")
+  orders       Order[]
+  campaigns    Campaign[]
+  adminOf      City?           @relation("CityAdmin")
+  scoreEntries CrewScore[]     @relation("ScoreUser")
+}
+
+model City {
+  id        String  @id @default(cuid())
+  name      String
+  country   String
+  slug      String  @unique
+  timezone  String  @default("America/Lima")
+  lat       Float
+  lng       Float
+  createdAt DateTime @default(now())
+
+  admin     User?         @relation("CityAdmin", fields: [adminId], references: [id])
+  adminId   String?       @unique
+  points    StaticPoint[]
+  zones     AllowedZone[]
+  cycles    BatchCycle[]
+  routes    Route[]
+  campaigns Campaign[]
+  supplies  SupplyItem[]
+  crew      CrewProfile[]
+}
+
+// ─────────────────────────────── Comercial ───────────────────────────────
+
+model Order {
+  id             String        @id @default(cuid())
+  reference      String        @unique @default(cuid())
+  tier           PlanTier
+  cadence        Cadence
+  amountCents    Int
+  currency       String        @default("USD")
+  status         OrderStatus   @default(PENDING)
+  planSnapshot   Json
+  clientName     String
+  clientEmail    String
+  clientPhone    String?
+  clientCompany  String?
+  mpPreferenceId String?
+  mpPaymentId    String?
+  paidAt         DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  client     User?      @relation(fields: [clientId], references: [id])
+  clientId   String?
+  payments   Payment[]
+  campaign   Campaign?
+}
+
+model Payment {
+  id         String          @id @default(cuid())
+  provider   PaymentProvider
+  status     PaymentStatus   @default(PENDING)
+  amountCents Int
+  currency   String          @default("USD")
+  externalId String?
+  raw        Json?
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+
+  order      Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId    String
+
+  @@index([orderId])
+}
+
+// ─────────────────────────────── Digital ───────────────────────────────
+
+model Campaign {
+  id        String         @id @default(cuid())
+  name      String
+  status    CampaignStatus @default(DRAFT)
+  startsAt  DateTime?
+  endsAt    DateTime?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  order     Order?         @relation(fields: [orderId], references: [id])
+  orderId   String?        @unique
+  client    User?          @relation(fields: [clientId], references: [id])
+  clientId  String?
+  city      City?          @relation(fields: [cityId], references: [id])
+  cityId    String?
+  evidences Evidence[]
+  deliverables Deliverable[]
+
+  @@index([clientId])
+}
+
+model Deliverable {
+  id          String           @id @default(cuid())
+  type        DeliverableType
+  title       String
+  status      DeliverableStatus @default(PENDING)
+  dueAt       DateTime?
+  deliveredAt DateTime?
+  assetUrl    String?
+  content     Json?
+  notes       String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  campaign    Campaign         @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaignId  String
+
+  @@index([campaignId])
+}
+
+// ─────────────────────────────── Physical ───────────────────────────────
+
+model StaticPoint {
+  id          String      @id @default(cuid())
+  name        String
+  address     String
+  lat         Float
+  lng         Float
+  partnerName String?
+  surface     String?
+  status      PointStatus @default(PROPOSED)
+  notes       String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  city        City        @relation(fields: [cityId], references: [id])
+  cityId      String
+  evidences   Evidence[]
+
+  @@index([cityId])
+}
+
+model AllowedZone {
+  id      String     @id @default(cuid())
+  name    String
+  // GeoJSON Polygon: { "type":"Polygon", "coordinates": [...] }
+  polygon Json
+  status  ZoneStatus @default(PROPOSED)
+  notes   String?
+
+  city    City       @relation(fields: [cityId], references: [id])
+  cityId  String
+
+  @@index([cityId])
+}
+
+model BatchCycle {
+  id             String      @id @default(cuid())
+  weekStart      DateTime    @db.Date
+  weekEnd        DateTime    @db.Date
+  phase          CyclePhase  @default(SALES)
+  printDate      DateTime?   @db.Date
+  distributeDate DateTime?   @db.Date
+  notes          String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  city           City        @relation(fields: [cityId], references: [id])
+  cityId         String
+  routes         Route[]
+  assignments    SupplyAssignment[]
+
+  @@unique([cityId, weekStart])
+  @@index([cityId])
+}
+
+model Route {
+  id           String      @id @default(cuid())
+  code         String
+  name         String
+  date         DateTime?   @db.Date
+  status       RouteStatus @default(PLANNED)
+  distanceM    Int?
+  estimatedQty Int?
+  notes        String?
+  completedAt  DateTime?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  cycle        BatchCycle  @relation(fields: [cycleId], references: [id], onDelete: Cascade)
+  cycleId      String
+  city         City        @relation(fields: [cityId], references: [id])
+  cityId       String
+  crew         CrewProfile? @relation(fields: [crewId], references: [id])
+  crewId       String?
+  stops        RouteStop[]
+
+  @@index([cycleId])
+  @@index([crewId])
+}
+
+model RouteStop {
+  id        String     @id @default(cuid())
+  order     Int
+  label     String
+  address   String?
+  lat       Float
+  lng       Float
+  kind      StopKind   @default(FLYER)
+  quantity  Int        @default(1)
+  status    StopStatus @default(PENDING)
+  checkNote String?
+  doneAt    DateTime?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  route     Route      @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  routeId   String
+  evidences Evidence[]
+
+  @@index([routeId])
+}
+
+model Evidence {
+  id         String         @id @default(cuid())
+  kind       EvidenceKind   @default(PHOTO)
+  fileUrl    String
+  width      Int?
+  height     Int?
+  // Metadatos anti-fraude: { gps:{lat,lng,accuracy}, capturedAt, device, hash, watermark }
+  metadata   Json?
+  lat        Float?
+  lng        Float?
+  accuracyM  Float?
+  capturedAt DateTime?
+  status     EvidenceStatus @default(PENDING)
+  rejectReason String?
+  reviewedAt DateTime?
+  createdAt  DateTime       @default(now())
+
+  uploader   User           @relation("EvidenceUploader", fields: [uploaderId], references: [id])
+  uploaderId String
+  reviewer   User?          @relation("EvidenceReviewer", fields: [reviewerId], references: [id])
+  reviewerId String?
+
+  stop       RouteStop?     @relation(fields: [stopId], references: [id])
+  stopId     String?
+  point      StaticPoint?   @relation(fields: [staticPointId], references: [id])
+  staticPointId String?
+  campaign   Campaign?      @relation(fields: [campaignId], references: [id])
+  campaignId String?
+
+  @@index([status])
+  @@index([stopId])
+}
+
+// ─────────────────────────────── Miri Crew ───────────────────────────────
+
+model CrewProfile {
+  id             String     @id @default(cuid())
+  handle         String     @unique
+  status         CrewStatus @default(AVAILABLE)
+  bio            String?
+  rating         Float      @default(5)
+  routesCompleted Int       @default(0)
+  stopsCompleted Int        @default(0)
+  score          Int        @default(0)
+  joinedAt       DateTime   @default(now())
+
+  user           User       @relation(fields: [userId], references: [id])
+  userId         String     @unique
+  city           City       @relation(fields: [cityId], references: [id])
+  cityId         String
+  routes         Route[]
+  supplies       SupplyAssignment[]
+  scoreEntries   CrewScore[]
+
+  @@index([cityId])
+}
+
+model CrewScore {
+  id        String   @id @default(cuid())
+  points    Int
+  reason    String
+  createdAt DateTime @default(now())
+
+  crew      CrewProfile @relation(fields: [crewId], references: [id], onDelete: Cascade)
+  crewId    String
+  awardedBy User?       @relation("ScoreUser", fields: [awardedById], references: [id])
+  awardedById String?
+
+  @@index([crewId])
+}
+
+// ─────────────────────────────── Insumos / Logística ───────────────────────────────
+
+model SupplyItem {
+  id       String   @id @default(cuid())
+  name     String
+  unit     String   @default("un")
+  stock    Int      @default(0)
+  minStock Int      @default(0)
+
+  city     City     @relation(fields: [cityId], references: [id])
+  cityId   String
+  assignments SupplyAssignment[]
+
+  @@index([cityId])
+}
+
+model SupplyAssignment {
+  id         String    @id @default(cuid())
+  quantity   Int
+  returned   Int?
+  notes      String?
+  createdAt  DateTime  @default(now())
+
+  cycle      BatchCycle @relation(fields: [cycleId], references: [id], onDelete: Cascade)
+  cycleId    String
+  crew       CrewProfile @relation(fields: [crewId], references: [id])
+  crewId     String
+  supply     SupplyItem @relation(fields: [supplyId], references: [id])
+  supplyId   String
+
+  @@index([cycleId])
+}
