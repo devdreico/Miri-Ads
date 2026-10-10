@@ -22,6 +22,8 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Crew", href: "#crew" },
 ];
 
+const NAV_OPEN_VG = "https://openvg.presentto.online";
+
 const NAV_CONTACT = "mailto:hola@miriads.com";
 
 export function SiteNav() {
@@ -125,6 +127,14 @@ export function SiteNav() {
                 {item.label}
               </Link>
             ))}
+            <a
+              href={NAV_OPEN_VG}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-lg px-3 py-2 text-sm text-gray-300 transition-colors duration-300 hover:text-aqua focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-aqua"
+            >
+              OpenVG
+            </a>
           </nav>
 
           <div className="hidden items-center gap-4 lg:flex">
@@ -179,6 +189,18 @@ export function SiteNav() {
                   </span>
                 </Link>
               ))}
+              <a
+                href={NAV_OPEN_VG}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={closeMenu}
+                className="flex items-center justify-between border-b border-white/8 py-4 font-display text-2xl font-medium text-paper transition-colors duration-300 hover:text-aqua focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-aqua"
+              >
+                OpenVG
+                <span aria-hidden="true" className="text-sm text-aqua">
+                  ↗
+                </span>
+              </a>
             </nav>
 
             <div className="flex flex-col gap-3">
